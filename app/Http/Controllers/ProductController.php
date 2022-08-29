@@ -17,7 +17,9 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return view('products.index');
+        $product =  Product::with('product_variant_prices')->paginate(2);
+
+        return view('products.index',['product'=>$product]);
     }
 
     /**
