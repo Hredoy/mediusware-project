@@ -7,14 +7,23 @@
 
 
     <div class="card">
-        <form action="" method="get" class="card-header">
+        <form action="{{ route('product.filter') }}" method="get" class="card-header">
             <div class="form-row justify-content-between">
                 <div class="col-md-2">
-                    <input type="text" name="title" placeholder="Product Title" class="form-control">
+                    <input type="text" value="{{ request('title') }}" name="title" placeholder="Product Title"
+                        class="form-control">
                 </div>
                 <div class="col-md-2">
                     <select name="variant" id="" class="form-control">
-
+                        <option value="">-- SELECT A VARIANT</option>
+                        @foreach ($Variant as $va)
+                            <optgroup label="{{ $va->title }}">
+                                @foreach ($va->ProductVariant as $pv)
+                                    <option value="{{ $pv->variant }}" @if (request('variant') == $pv->variant) selected @endif>
+                                        {{ $pv->variant }}</option>
+                                @endforeach
+                            </optgroup>
+                        @endforeach
                     </select>
                 </div>
 
@@ -23,13 +32,17 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text">Price Range</span>
                         </div>
-                        <input type="text" name="price_from" aria-label="First name" placeholder="From"
-                            class="form-control">
-                        <input type="text" name="price_to" aria-label="Last name" placeholder="To" class="form-control">
+                        <input type="text" name="price_from" value="{{ request('price_from') }}" aria-label="First name"
+                            placeholder="From" class="form-control">
+                        <input type="text" name="price_to" value="{{ request('price_to') }}" aria-label="Last name"
+                            placeholder="To" class="form-control">
                     </div>
                 </div>
                 <div class="col-md-2">
-                    <input type="date" name="date" placeholder="Date" class="form-control">
+
+                    <input type="date" name="date" min="{{ $firstProduct->created_at->format('Y-m-d') }}"
+                        max="{{ \Carbon\Carbon::today()->format('Y-m-d') }}" value="{{ request('date') }}"
+                        placeholder="Date" class="form-control">
                 </div>
                 <div class="col-md-1">
                     <button type="submit" class="btn btn-primary float-right"><i class="fa fa-search"></i></button>
@@ -64,20 +77,26 @@
                                         id="variant-{{ $p->id }}">
 
                                         <dt class="col-sm-3 pb-0">
-                                            @foreach ($p->product_variant_prices as $value)
-                                                @if (!is_null($value->ProductVariant('product_variant_one')))
-                                                    {{ $value->ProductVariant('product_variant_one')->variant }}
-                                                @endif
-                                                /
-                                                @if (!is_null($value->ProductVariant('product_variant_two')))
-                                                    {{ $value->ProductVariant('product_variant_two')->variant }}
-                                                @endif
-                                                /
-                                                @if ($value->ProductVariant('product_variant_three'))
-                                                    {{ $value->ProductVariant('product_variant_three')->variant }}
-                                                @endif
-                                                <br>
-                                            @endforeach
+                                            @if ($is_filtered == 0)
+                                                @foreach ($p->product_variant_prices as $value)
+                                                    @if (!is_null($value->ProductVariant('product_variant_one')))
+                                                        {{ $value->ProductVariant('product_variant_one')->variant }}
+                                                    @endif
+                                                    /
+                                                    @if (!is_null($value->ProductVariant('product_variant_two')))
+                                                        {{ $value->ProductVariant('product_variant_two')->variant }}
+                                                    @endif
+                                                    /
+                                                    @if ($value->ProductVariant('product_variant_three'))
+                                                        {{ $value->ProductVariant('product_variant_three')->variant }}
+                                                    @endif
+                                                    <br>
+                                                @endforeach
+                                            @else
+                                                @foreach ($p->ProductVariant as $value)
+                                                    {{ $value->variant }}
+                                                @endforeach
+                                            @endif
                                         </dt>
                                         <dd class="col-sm-9">
                                             <dl class="row mb-0">

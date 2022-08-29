@@ -18,8 +18,9 @@ class ProductController extends Controller
     public function index()
     {
         $product =  Product::with('product_variant_prices')->paginate(2);
-
-        return view('products.index',['product'=>$product]);
+        $Variant = Variant::with('ProductVariant')->orderBy('id','asc')->get();
+        $firstProduct = Product::orderBy('created_at','asc')->first();
+        return view('products.index',['is_filtered'=>0,'product'=>$product,'Variant'=>$Variant,'firstProduct'=>$firstProduct]);
     }
 
     /**
@@ -51,9 +52,51 @@ class ProductController extends Controller
      * @param \App\Models\Product $product
      * @return \Illuminate\Http\Response
      */
-    public function show($product)
+    public function show(Request $request)
     {
+        $title = $request->title;
+        $variant = $request->variant;
+        $price_from = $request->price_from;
+        $price_to = $request->price_to;
+        $date = $request->date;
+        if(!is_null($price_from) && !is_null($price_to)){
+            $products = Product::with(['product_variant_prices' => function ($q) use ($price_from,$price_to) {
+            $q->whereBetween('price',  [$price_from,$price_to]);
+            },'ProductVariant' => function ($q) use ($variant) {
+            $q->where('variant',$variant);
+            }])->orWhere('title','LIKE','%'.$title.'%')
+            ->paginate(10);
 
+        }elseif(!is_null($price_from) && is_null($price_to))
+        {
+           $products = Product::with(['product_variant_prices' => function ($q) use ($price_from) {
+            $q->where('price','>=',  $price_from);
+            },'ProductVariant' => function ($q) use ($variant) {
+            $q->where('variant',$variant);
+            }])->orWhere('title','LIKE','%'.$title.'%')
+            ->paginate(10);
+        }elseif(is_null($price_from) && !is_null($price_to))
+        {
+            $products = Product::with(['product_variant_prices' => function ($q) use ($price_to) {
+            $q->where('price','<=',  $price_to);
+            },'ProductVariant' => function ($q) use ($variant) {
+            $q->where('variant',$variant);
+            }])->orWhere('title','LIKE','%'.$title.'%')
+            ->paginate(10);
+        }elseif(is_null($price_from) && is_null($price_to) && is_null($variant))
+        {
+            $products = Product::with(['product_variant_prices','ProductVariant'])->orWhere('title','LIKE','%'.$title.'%')
+            ->paginate(10);
+        }elseif(is_null($price_from) && is_null($price_to)){
+            $products = Product::with(['product_variant_prices','ProductVariant' => function ($q) use ($variant) {
+            $q->where('variant',$variant);
+            }])->orWhere('title','LIKE','%'.$title.'%')
+            ->paginate(10);
+        }
+
+     $Variant = Variant::with('ProductVariant')->orderBy('id','asc')->get();
+        $firstProduct = Product::orderBy('created_at','asc')->first();
+        return view('products.index',['is_filtered'=>1,'product'=>$products,'Variant'=>$Variant,'firstProduct'=>$firstProduct]);
     }
 
     /**
