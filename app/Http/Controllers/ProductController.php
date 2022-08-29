@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\ProductVariantPrice;
+use App\Models\ProductImage;
 use App\Models\Variant;
 use Illuminate\Http\Request;
-
+use App\Http\Requests\ProductStoreRequest;
 class ProductController extends Controller
 {
     /**
@@ -40,8 +41,14 @@ class ProductController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request)
+    public function store(ProductStoreRequest $request)
     {
+
+        $data['title'] = $request->title;
+        $data['description']=$request->description;
+        $data['sku'] = $request->sku;
+        Product::create($data);
+        return response()->json(["data"=>$data,"msg"=>"Sucessfully Inserted"], 200);
 
     }
 
