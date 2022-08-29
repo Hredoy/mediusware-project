@@ -2038,7 +2038,7 @@ __webpack_require__.r(__webpack_exports__);
       }],
       product_variant_prices: [],
       dropzoneOptions: {
-        url: 'https://httpbin.org/post',
+        url: '/product/image-upload',
         thumbnailWidth: 150,
         maxFilesize: 0.5,
         headers: {

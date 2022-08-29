@@ -9,6 +9,7 @@ use App\Models\ProductImage;
 use App\Models\Variant;
 use Illuminate\Http\Request;
 use App\Http\Requests\ProductStoreRequest;
+use DB;
 class ProductController extends Controller
 {
     /**
@@ -43,6 +44,7 @@ class ProductController extends Controller
      */
     public function store(ProductStoreRequest $request)
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         $data['title'] = $request->title;
         $data['description']=$request->description;
@@ -116,7 +118,19 @@ class ProductController extends Controller
         return response()->json(["data"=>$data,"msg"=>"Sucessfully Inserted"], 200);
 
     }
+    public function image_upload(Request $request)
+    {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        $image = $request->file('file');
+        $imageName = $image->getClientOriginalName();
+        $image->move(public_path('images'), $imageName);
 
+        $tableStatus = DB::select("show table status from med_question where Name = 'products'");
+
+        $imageUpload= DB::table('product_images')->insert(['product_id'=>$tableStatus[0]->Auto_increment,'thumbnail'=>$imageName,'file_path'=>public_path('images').'/'.$imageName]);
+        return response()->json(['success' => $imageUpload]);
+        // ProductImage
+    }
 
     /**
      * Display the specified resource.

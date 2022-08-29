@@ -25,6 +25,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('product-variant', 'VariantController');
     Route::resource('product', 'ProductController');
     Route::get('product/list/','ProductController@show')->name("product.filter");
+    Route::post('product/image-upload','ProductController@image_upload')->name("product.image_upload");
     Route::resource('blog', 'BlogController');
     Route::resource('blog-category', 'BlogCategoryController');
 });
