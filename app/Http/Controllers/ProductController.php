@@ -47,7 +47,72 @@ class ProductController extends Controller
         $data['title'] = $request->title;
         $data['description']=$request->description;
         $data['sku'] = $request->sku;
-        Product::create($data);
+        // INSERT IN PRODUCT VARIANT PRICES TABLE
+
+        $product = Product::create($data);
+        //  INSERT IN PRODUCT VARIANT TABLE
+
+        foreach($request->product_variant as $variants){
+            $variant_option = $variants['option'];
+            foreach($variants['tags'] as $tags)
+            {
+                $product_variants = ProductVariant::create(['product_id'=>$product->id,'variant_id'=>$variant_option,'variant'=>$tags]);
+
+            }
+        }
+        $Variant = Variant::all();
+        $product_variant_one = [];
+        $product_variant_two = [];
+        $product_variant_three = [];
+        $i = 1;
+        foreach($Variant as $v)
+        {
+            $pro_variants = ProductVariant::where(['variant_id'=>$v->id,'product_id'=>$product->id])->get();
+
+            if($i == 1)
+            {
+                foreach($pro_variants as $pv)
+                {
+                    array_push($product_variant_one, $pv->id);
+                }
+            }
+            if($i == 2)
+            {
+                foreach($pro_variants as $pv)
+                {
+                    array_push($product_variant_two, $pv->id);
+                }
+            }
+            if($i == 3)
+            {
+                foreach($pro_variants as $pv)
+                {
+                    array_push($product_variant_three, $pv->id);
+                }
+            }
+            $i++;
+        }
+        $mPricedata = [];
+        $m=0;
+            for($j = 0 ; $j<count($product_variant_one);$j++)
+            {
+                for($k=0; $k<count($product_variant_two);$k++)
+                {
+                    for($l=0; $l<count($product_variant_three);$l++)
+                    {
+                        $ProductVariantPriceData['product_variant_one'] = $product_variant_one[$j];
+                        $ProductVariantPriceData['product_variant_two'] = $product_variant_two[$k];
+                        $ProductVariantPriceData['product_variant_three'] = $product_variant_three[$l];
+                        $ProductVariantPriceData['price'] = $request->product_variant_prices[$m]['price'];
+                        $ProductVariantPriceData['stock'] = $request->product_variant_prices[$m]['stock'];
+                        $ProductVariantPriceData['product_id'] = $product->id;
+                        array_push($mPricedata,$ProductVariantPriceData);
+                        ProductVariantPrice::create($ProductVariantPriceData);
+                        $m++;
+                    }
+                }
+            }
+        // ProductVariantPrice
         return response()->json(["data"=>$data,"msg"=>"Sucessfully Inserted"], 200);
 
     }
