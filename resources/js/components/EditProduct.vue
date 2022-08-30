@@ -226,14 +226,14 @@ export default {
             {
                 case "create":
                     axios.post('/product', product).then(response => {
-                        window.location.href = '/product';
+                        console.log(response.data);
                     }).catch(error => {
                         console.log(error);
                     })
                     break;
                 case "edit":
                     axios.put(`/product/${this.id}`, product).then(response => {
-                        window.location.href = '/product';
+                        console.log(response.data);
                     }).catch(error => {
                         console.log(error);
                     })

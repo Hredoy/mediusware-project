@@ -26,6 +26,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('product', 'ProductController');
     Route::get('product/list/','ProductController@show')->name("product.filter");
     Route::post('product/image-upload','ProductController@image_upload')->name("product.image_upload");
+    Route::post('product/image-update/{id}','ProductController@image_update')->name("product.image_update");
+    Route::get('/getProductData/{id}/edit','ProductController@getProductById');
     Route::resource('blog', 'BlogController');
     Route::resource('blog-category', 'BlogCategoryController');
 });
