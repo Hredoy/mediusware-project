@@ -192,6 +192,7 @@ class ProductController extends Controller
             $q->where('variant',$variant);
             }])->orWhere('title','LIKE','%'.$title.'%')
             ->paginate(10);
+
         }
 
      $Variant = Variant::with('ProductVariant')->orderBy('id','asc')->get();

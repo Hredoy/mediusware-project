@@ -68,58 +68,87 @@
                             $i = $product->perPage() * ($product->currentPage() - 1) + 1;
                         @endphp
                         @foreach ($product as $p)
-                            <tr>
-                                <td>{{ $i++ }}</td>
-                                <td>{{ $p->title }} <br> Created at : {{ $p->created_at->format('d-M-Y') }}</td>
-                                <td>{{ $p->description }}</td>
-                                <td>
-                                    <dl class="row mb-0" style="height: 80px; overflow: hidden"
-                                        id="variant-{{ $p->id }}">
+                            @if (count($p->product_variant_prices) > 0 && count($p->ProductVariant) > 0)
+                                <tr>
+                                    <td>{{ $i++ }}</td>
+                                    <td>{{ $p->title }} <br> Created at : {{ $p->created_at->format('d-M-Y') }}</td>
+                                    <td>{{ $p->description }}</td>
+                                    <td>
+                                        <dl class="row mb-0" style="height: 100vh; overflow: hidden"
+                                            id="variant-{{ $p->id }}">
 
-                                        <dt class="col-sm-3 pb-0">
-                                            @if ($is_filtered == 0)
-                                                @foreach ($p->product_variant_prices as $value)
-                                                    @if (!is_null($value->ProductVariant('product_variant_one')))
-                                                        {{ $value->ProductVariant('product_variant_one')->variant }}
+                                            <dt class="col-sm-3 pb-0">
+                                                @if ($is_filtered == 0)
+                                                    @foreach ($p->product_variant_prices as $value)
+                                                        @if (!is_null($value->ProductVariant('product_variant_one')))
+                                                            {{ $value->ProductVariant('product_variant_one')->variant }}
+                                                        @endif
+                                                        /
+                                                        @if (!is_null($value->ProductVariant('product_variant_two')))
+                                                            {{ $value->ProductVariant('product_variant_two')->variant }}
+                                                        @endif
+                                                        /
+                                                        @if ($value->ProductVariant('product_variant_three'))
+                                                            {{ $value->ProductVariant('product_variant_three')->variant }}
+                                                        @endif
+                                                        <br>
+                                                    @endforeach
+                                                @else
+                                                    @foreach ($p->ProductVariant as $value)
+                                                        @foreach ($value->ProductVariantPrices() as $val)
+                                                            @if (!is_null($val->ProductVariant('product_variant_one')))
+                                                                {{ $val->ProductVariant('product_variant_one')->variant }}
+                                                            @endif
+                                                            /
+                                                            @if (!is_null($val->ProductVariant('product_variant_two')))
+                                                                {{ $val->ProductVariant('product_variant_two')->variant }}
+                                                            @endif
+                                                            /
+                                                            @if ($val->ProductVariant('product_variant_three'))
+                                                                {{ $val->ProductVariant('product_variant_three')->variant }}
+                                                            @endif
+                                                            <br>
+                                                        @endforeach
+                                                    @endforeach
+                                                @endif
+                                            </dt>
+                                            <dd class="col-sm-9">
+                                                <dl class="row mb-0">
+                                                    @if ($is_filtered == 0)
+                                                        @foreach ($p->product_variant_prices as $value)
+                                                            <dt class="col-sm-4 pb-0">
+                                                                Price {{ number_format($value->price, 2) }}
+                                                            </dt>
+                                                            <dd class="col-sm-8 pb-0">InStock :
+                                                                {{ number_format($value->stock, 2) }}</dd>
+                                                        @endforeach
+                                                    @else
+                                                        @foreach ($p->ProductVariant as $value)
+                                                            @foreach ($value->ProductVariantPrices() as $val)
+                                                                <dt class="col-sm-4 pb-0">
+                                                                    Price
+                                                                    {{ number_format($val->price, 2) }}
+                                                                </dt>
+                                                                <dd class="col-sm-8 pb-0">InStock :
+                                                                    {{ number_format($val->stock, 2) }}
+                                                                </dd>
+                                                            @endforeach
+                                                        @endforeach
                                                     @endif
-                                                    /
-                                                    @if (!is_null($value->ProductVariant('product_variant_two')))
-                                                        {{ $value->ProductVariant('product_variant_two')->variant }}
-                                                    @endif
-                                                    /
-                                                    @if ($value->ProductVariant('product_variant_three'))
-                                                        {{ $value->ProductVariant('product_variant_three')->variant }}
-                                                    @endif
-                                                    <br>
-                                                @endforeach
-                                            @else
-                                                @foreach ($p->ProductVariant as $value)
-                                                    {{ $value->variant }}
-                                                @endforeach
-                                            @endif
-                                        </dt>
-                                        <dd class="col-sm-9">
-                                            <dl class="row mb-0">
-                                                @foreach ($p->product_variant_prices as $value)
-                                                    <dt class="col-sm-4 pb-0">
-                                                        Price {{ number_format($value->price, 2) }}
-                                                    </dt>
-                                                    <dd class="col-sm-8 pb-0">InStock :
-                                                        {{ number_format($value->stock, 2) }}</dd>
-                                                @endforeach
-                                            </dl>
-                                        </dd>
-                                    </dl>
-                                    <button onclick="$('#variant-{{ $p->id }}').toggleClass('h-auto')"
-                                        class="btn btn-sm btn-link">Show
-                                        more</button>
-                                </td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <a href="{{ route('product.edit', $p->id) }}" class="btn btn-success">Edit</a>
-                                    </div>
-                                </td>
-                            </tr>
+                                                </dl>
+                                            </dd>
+                                        </dl>
+                                        <button onclick="$('#variant-{{ $p->id }}').toggleClass('h-auto')"
+                                            class="btn btn-sm btn-link">Show
+                                            more</button>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{{ route('product.edit', $p->id) }}" class="btn btn-success">Edit</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endif
                         @endforeach
 
                     </tbody>
